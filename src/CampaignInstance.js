@@ -60,8 +60,6 @@ class CampaignInstance {
       //   );
     }
 
-    const DomUtil = this.client.DomUtil;
-
     for (const schema of this.schemas) {
       const folderPath = downloadPath + "/" + schema.replace(":", "_");
       if (!fs.existsSync(folderPath)) {
@@ -69,48 +67,65 @@ class CampaignInstance {
       }
       console.log(`${folderPath} (${schema})`);
 
-      const queryDef = {
-        schema: schema,
-        operation: "select",
-        select: {
-          node: [{ expr: "data" }],
-        },
-        lineCount: 10, // @todo pagination
-      };
-      const queryDefXml = this.client.DomUtil.fromJSON(
-        "queryDef",
-        queryDef,
-        "SimpleJson",
-      );
-
-      const query = this.client.NLWS.xml.xtkQueryDef.create(queryDefXml);
-
-      let message = "";
-      try {
-        const records = await query.executeQuery(); // DOMDocument <srcSchema-collection><srcSchema></srcSchema>...
-        var recordsLength = 0;
-        var child = DomUtil.getFirstChildElement(records);
-        while (child) {
-          recordsLength++;
-
-          const namespace = DomUtil.getAttributeAsString(child, "namespace");
-          const name = DomUtil.getAttributeAsString(child, "name");
-          const filename = `${namespace}_${name}.xml`;
-          const filepath = path.join(folderPath, filename);
-          const data = DomUtil.toXMLString(child);
-          fs.writeFileSync(filepath, data);
-          console.log(`  /${filename}`);
-
-          child = DomUtil.getNextSiblingElement(child);
-        }
-
-        message = `${recordsLength} saved.`;
-      } catch (err) {
-        message = `⚠️ Error executing query: ${err.message}.`;
-      } finally {
-        console.log(`- ${schema}: ` + message);
-      }
+      const lineCount = 10;
+      let startLine = 1;
+      let recordsLength = 0;
+      do {
+        console.log(
+          `  Downloading lines ${startLine} to ${startLine + lineCount - 1}...`,
+        );
+        recordsLength = await this.download(schema, folderPath, startLine);
+        startLine += lineCount;
+      } while (recordsLength >= lineCount);
     }
+  }
+
+  async download(schema, folderPath, startLine) {
+    const DomUtil = this.client.DomUtil;
+
+    const queryDef = {
+      schema: schema,
+      operation: "select",
+      select: {
+        node: [{ expr: "data" }],
+      },
+      startLine: startLine,
+      lineCount: 10, // @todo pagination
+    };
+    const queryDefXml = this.client.DomUtil.fromJSON(
+      "queryDef",
+      queryDef,
+      "SimpleJson",
+    );
+
+    const query = this.client.NLWS.xml.xtkQueryDef.create(queryDefXml);
+
+    let message = "";
+    var recordsLength = 0;
+    try {
+      const records = await query.executeQuery(); // DOMDocument <srcSchema-collection><srcSchema></srcSchema>...
+      var child = DomUtil.getFirstChildElement(records);
+      while (child) {
+        recordsLength++;
+
+        const namespace = DomUtil.getAttributeAsString(child, "namespace");
+        const name = DomUtil.getAttributeAsString(child, "name");
+        const filename = `${namespace}_${name}.xml`;
+        const filepath = path.join(folderPath, filename);
+        const data = DomUtil.toXMLString(child);
+        fs.writeFileSync(filepath, data);
+        console.log(`  /${filename}`);
+
+        child = DomUtil.getNextSiblingElement(child);
+      }
+
+      message = `${recordsLength} saved.`;
+    } catch (err) {
+      message = `⚠️ Error executing query: ${err.message}.`;
+    } finally {
+      console.log(`- ${schema}: ` + message);
+    }
+    return recordsLength;
   }
 
   isFolderEmpty(path) {
