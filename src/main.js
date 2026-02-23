@@ -3,6 +3,7 @@ import { program, Command } from "commander";
 import sdk from "@adobe/acc-js-sdk";
 import Configstore from "configstore";
 import fs from "node:fs";
+import path from "node:path";
 // Campaign
 import CampaignError from "./CampaignError.js";
 import CampaignAuth from "./CampaignAuth.js";
@@ -11,6 +12,7 @@ import CampaignInstance from "./CampaignInstance.js";
 const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
 const config = new Configstore(packageJson.name);
 const auth = new CampaignAuth(sdk, config);
+const defaultDistRoot = path.join(process.cwd());
 
 // AUTH
 program
@@ -75,11 +77,39 @@ program
         "--alias <alias>",
         "Local alias for this instance, e.g. prod, staging, local",
       )
+      .option(
+        "--path <path>",
+        "Path where the command should run. Defaults to current working directory.",
+        defaultDistRoot
+      )
       .action(async (options) => {
         try {
           const client = await auth.login({ alias: options.alias });
           const instance = new CampaignInstance(client);
-          instance.check();
+          await instance.check(options.path);
+        } catch (err) {
+          handleCampaignError(err);
+        }
+      }),
+  )
+  // PULL
+  .addCommand(
+    new Command()
+      .name("pull")
+      .requiredOption(
+        "--alias <alias>",
+        "Local alias for this instance, e.g. prod, staging, local",
+      )
+      .option(
+        "--path <path>",
+        "Path where the command should run. Defaults to current working directory.",
+        defaultDistRoot
+      )
+      .action(async (options) => {
+        try {
+          const client = await auth.login({ alias: options.alias });
+          const instance = new CampaignInstance(client);
+          await instance.pull(options.path);
         } catch (err) {
           handleCampaignError(err);
         }
