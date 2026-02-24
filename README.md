@@ -4,7 +4,7 @@
 
 First login
 ```bash
-$ campaign auth init --host http://localhost:8080 --user admin --user admin --alias local
+$ campaign auth init --host http://localhost:8080 --user admin --password admin --alias local
 # ✅ Instance local2 added successfully.
 # ↔️ Connecting as admin@http://localhost:8080...
 # ✅ Logged in to instance1 (7.3.4 build 9364) successfully.

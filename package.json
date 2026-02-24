@@ -13,7 +13,8 @@
   "dependencies": {
     "@adobe/acc-js-sdk": "^1.1.61",
     "commander": "^14.0.3",
-    "configstore": "^8.0.0"
+    "configstore": "^8.0.0",
+    "fs-extra": "^11.3.3"
   },
   "devDependencies": {
     "c8": "^11.0.0",
