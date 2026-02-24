@@ -52,6 +52,11 @@ $ campaign auth list
 $ campaign auth login --alias local
 ```
 
+## Architecture
+
+- Connect via `https://opensource.adobe.com/acc-js-sdk/connecting.html`
+- Download metadata via `https://opensource.adobe.com/acc-js-sdk/xtkQueryDef.html`
+- Parse and convert to local files
 
 ## Contribute
 
