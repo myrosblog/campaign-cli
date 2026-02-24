@@ -2,13 +2,14 @@
 
 ## Getting started
 
-First login
+- Step 1/2: login with user/pwd and save an `alias`
+
 ```bash
-$ campaign auth init --host http://localhost:8080 --user admin --password admin --alias local
+$ campaign auth init --host http://localhost:8080 --user admin --password admin --alias staging
 ```
 
 ```bash
-# ✅ Instance local2 added successfully.
+# ✅ Instance staging added successfully.
 # ↔️ Connecting as admin@http://localhost:8080...
 # ✅ Logged in to instance1 (7.3.4 build 9364) successfully.
 # 📡 Checking instance...
@@ -16,8 +17,15 @@ $ campaign auth init --host http://localhost:8080 --user admin --password admin 
 # - xtk:form: 185 found.
 # - xtk:javascript: 126 found.
 # - xtk:sql: 69 found.
+```
 
-$ campaign instance pull --alias my-instance
+- Step 2/2: pull to current folder
+
+```bash
+$ campaign instance pull --alias staging
+```
+
+```bash
 # ✅ Logged in to instance1 (7.3.4 build 9364) successfully.
 # ✨ Pulling instance to /Users/dist/local...
 # /Users/dist/local/xtk_srcSchema (xtk:srcSchema)
