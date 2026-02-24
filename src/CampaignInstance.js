@@ -3,69 +3,49 @@ import path from "node:path";
 import CampaignError from "./CampaignError.js";
 
 const CONFIG_DEFAULT_KEY = "default";
-const configs = {
-  // XTK
-  // "xtk:srcSchema": {
-  //   filename: `/Administration/Configuration/Data schemas/%namespace%/%name%.html`,
-  // },
-  // "xtk:form": {
-  //   filename: `/Administration/Configuration/Input forms/%namespace%/%name%.html`,
-  // },
-  // "xtk:navtree": {
-  //   filename: `/Administration/Configuration/Navigation hierarchies/%namespace%/%name%.html`,
-  // },
-  // "xtk:javascript": {
-  //   filename: `/Administration/Configuration/JavaScript codes/%namespace%/%name%.html`,
-  // },
-  // "xtk:jssp": {
-  //   filename: `/Administration/Configuration/Dynamic JavaScript pages/%namespace%/%name%.html`,
-  // },
-  "xtk:formRendering": {
-    filename: `/Administration/Configuration/Form rendering/%internalName%.css`,
-  },
-  // "xtk:sql": {
-  //   filename: `/Administration/Configuration/SQL scripts/%namespace%/%name%.sql`,
-  // },
-  // "xtk:xslt": {
-  //   filename: `/Administration/Configuration/XSL style sheets/%namespace%/%name%.html`,
-  // },
-};
-// DEFAULT
-configs[CONFIG_DEFAULT_KEY] = {
-  filename: `/.tmp/%namespace%_%schema%_%name%_%internalName%.xml`,
-};
 
 /**
  * @class CampaignInstance
  */
 class CampaignInstance {
-  constructor(client) {
+  constructor(client, campaignConfig) {
     this.client = client;
-    this.schemas = Object.keys(configs).filter(
+    this.campaignConfig = campaignConfig;
+    this.schemas = Object.keys(this.campaignConfig).filter(
       (key) => key !== CONFIG_DEFAULT_KEY,
     );
 
     this.client.registerObserver({
       onSOAPCall: (soapCall, safeRequestData) => {
-        this.saveArchiveRequest(soapCall.request.data);
+        // this.saveArchiveRequest(soapCall.request.data);
       },
       onSOAPCallSuccess: (soapCall, safeResponseData) => {
-        this.saveArchiveResponse(soapCall.response);
+        // this.saveArchiveResponse(soapCall.response);
       },
       onSOAPCallFailure: (soapCall, error) => {
-        this.saveArchiveResponse(soapCall.response);
+        // this.saveArchiveResponse(soapCall.response);
       },
     });
+  }
+
+  _getQueryDefForSchema(schema, baseQueryDef) {
+    const config = this.campaignConfig[schema]
+      ? this.campaignConfig[schema]
+      : this.campaignConfig[CONFIG_DEFAULT_KEY];
+    const configQueryDef = config.queryDef ? config.queryDef : {};
+
+    return {
+      ...baseQueryDef,
+      ...configQueryDef,
+    };
   }
 
   async check(downloadPath) {
     console.log("📡 Checking instance...");
 
     for (const schema of this.schemas) {
-      const queryDef = {
-        schema: schema,
-        operation: "count",
-      };
+      const baseQueryDef = { schema: schema, operation: "count" };
+      const queryDef = this._getQueryDefForSchema(schema, baseQueryDef);
       const query = this.client.NLWS.xtkQueryDef.create(queryDef);
 
       let message = "";
@@ -119,7 +99,7 @@ class CampaignInstance {
   async download(schema, folderPath, startLine) {
     const DomUtil = this.client.DomUtil;
 
-    const queryDef = {
+    const baseQueryDef = {
       schema: schema,
       operation: "select",
       select: {
@@ -128,6 +108,7 @@ class CampaignInstance {
       startLine: startLine,
       lineCount: 10, // @todo pagination
     };
+    const queryDef = this._getQueryDefForSchema(schema, baseQueryDef);
     const queryDefXml = this.client.DomUtil.fromJSON(
       "queryDef",
       queryDef,
@@ -136,7 +117,9 @@ class CampaignInstance {
 
     const query = this.client.NLWS.xml.xtkQueryDef.create(queryDefXml);
 
-    const config = configs[schema] ? configs[schema] : configs["default"];
+    const config = this.campaignConfig[schema]
+      ? this.campaignConfig[schema]
+      : this.campaignConfig[CONFIG_DEFAULT_KEY];
     const configFilename = config.filename;
 
     let message = "";

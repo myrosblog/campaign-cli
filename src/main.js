@@ -9,10 +9,12 @@ import CampaignError from "./CampaignError.js";
 import CampaignAuth from "./CampaignAuth.js";
 import CampaignInstance from "./CampaignInstance.js";
 
+
 const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
 const config = new Configstore(packageJson.name);
 const auth = new CampaignAuth(sdk, config);
 const defaultDistRoot = path.join(process.cwd());
+const defaultConfigPath = path.join(process.cwd(), "config", "campaign.config.json");
 
 // AUTH
 program
@@ -82,10 +84,16 @@ program
         "Path where the command should run. Defaults to current working directory.",
         defaultDistRoot
       )
+      .option(
+        "--config <path>",
+        "Path to the campaign.config.json file. Defaults ./config/campaign.config.json.",
+        defaultConfigPath
+      )
       .action(async (options) => {
         try {
+          const campaignConfig = JSON.parse(fs.readFileSync(options.config));
           const client = await auth.login({ alias: options.alias });
-          const instance = new CampaignInstance(client);
+          const instance = new CampaignInstance(client, campaignConfig);
           await instance.check(options.path);
         } catch (err) {
           handleCampaignError(err);
@@ -105,10 +113,16 @@ program
         "Path where the command should run. Defaults to current working directory.",
         defaultDistRoot
       )
+      .option(
+        "--config <path>",
+        "Path to the campaign.config.json file. Defaults ./config/campaign.config.json.",
+        defaultConfigPath
+      )
       .action(async (options) => {
         try {
+          const campaignConfig = JSON.parse(fs.readFileSync(options.config));
           const client = await auth.login({ alias: options.alias });
-          const instance = new CampaignInstance(client);
+          const instance = new CampaignInstance(client, campaignConfig);
           await instance.pull(options.path);
         } catch (err) {
           handleCampaignError(err);

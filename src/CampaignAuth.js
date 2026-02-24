@@ -56,7 +56,7 @@ class CampaignCli {
         `Instance with alias "${options.alias}" doesn't exist.`,
       );
     }
-    console.log(`↔️ Trying to connect ${user}@${host}...`);
+    console.log(`↔️ Connecting ${user}@${host}...`);
     const connectionParameters =
       this.sdk.ConnectionParameters.ofUserAndPassword(host, user, password);
     const client = await this.sdk.init(connectionParameters);

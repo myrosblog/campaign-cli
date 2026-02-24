@@ -1,0 +1,21 @@
+{
+  "xtk:jssp": {
+    "filename": "/Administration/Configuration/Dynamic JavaScript pages/%namespace%/%name%.js",
+    "queryDef": {
+      "where": {
+        "condition": [{ "expr": "@namespace NOT IN ('xtk')" }]
+      }
+    }
+  },
+  "xtk:formRendering": {
+    "filename": "/Administration/Configuration/Form rendering/%internalName%.css",
+    "queryDef": {
+      "where": {
+        "condition": [{ "expr": "@internalName NOT LIKE 'xtk%'" }]
+      }
+    }
+  },
+  "default": {
+    "filename": "/.tmp/%namespace%_%schema%_%name%_%internalName%.xml"
+  }
+}
