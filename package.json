@@ -3,8 +3,14 @@
   "version": "0.1.0",
   "description": "A command-line interface for Adobe Campaign Classic",
   "bin": {
-    "campaign": "./main.js"
+    "campaign": "./bin/campaign"
   },
+  "preferGlobal": true,
+  "files": [
+    "bin/",
+    "src/",
+    "config/"
+  ],
   "scripts": {
     "init": "node src/main.js",
     "test": "c8 mocha test/index.js"
