@@ -30,6 +30,27 @@ campaign --help
 
 ### Basic Usage
 
+Folder structure recommendation, under a local folder, i.e. `Download`
+
+```bash
+Downloads/
+├── campaign-cli/                  # Clone of this source code
+│
+├── instance1-staging/             # Staging Instance 1
+│   ├── config/                          # Instance-specific config => must be created
+│   │   └── campaign.config.json
+│   └── Administration/Configuration/    # Downloaded schemas => automatically downloaded
+│       ├── schema1.xml
+│       └── schema2.xml
+│
+└── instance1-production/          # Production Instance 2
+    ├── config/
+    │   └── campaign.config.json
+    └── Administration/Configuration/
+        ├── schema1.xml
+        └── schema2.xml
+```
+
 #### Step 1: Configure an ACC Instance
 
 ```bash
@@ -45,7 +66,7 @@ This command:
 - Tests the connection to your ACC instance
 - Lists available schemas and record counts
 
-#### Step 2: Pull Data from Your Instance
+#### Step 2: Pull Data from Your Instance with default configuration
 
 ```bash
 campaign instance pull --alias local
@@ -56,6 +77,12 @@ This command:
 - Downloads schema definitions as XML files
 - Preserves original naming conventions
 - Implements pagination for large datasets
+
+#### Step 2-bis: Pull Data from Your Instance with custom configuration
+
+Create 
+```bash
+```
 
 ## 📚 Features
 
