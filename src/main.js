@@ -132,6 +132,20 @@ program
 
 program.parse(process.argv);
 
+/**
+ * Handles errors from Campaign CLI operations.
+ * Distinguishes between CampaignError and other errors for appropriate handling.
+ *
+ * @param {Error} err - The error to handle
+ * @returns {void}
+ *
+ * @example
+ * try {
+ *   await auth.login({ alias: 'prod' });
+ * } catch (err) {
+ *   handleCampaignError(err);
+ * }
+ */
 function handleCampaignError(err) {
   if (err instanceof CampaignError) {
     console.error(`⚠️ Campaign warning: ${err.message}`);

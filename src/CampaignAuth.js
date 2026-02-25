@@ -1,15 +1,29 @@
 import CampaignError from "./CampaignError.js";
 
 /**
+ * Campaign CLI class for managing ACC (Campaign Classic) instances.
+ * Provides authentication, instance management, and connection capabilities.
+ *
  * @class CampaignCli
+ * @classdesc Main class for interacting with ACC instances
  */
 class CampaignCli {
+  /**
+   * Configuration key for storing instances
+   * @type {string}
+   * @private
+   */
   INSTANCES_KEY = "instances";
 
   /**
-   * @param {acc-js-sdk} sdk
-   * @param {Configstore} config
-   * @throws {CampaignError}
+   * Creates a new CampaignCli instance.
+   *
+   * @param {Object} sdk - ACC JS SDK instance
+   * @param {Object} config - Configstore instance for persistent storage
+   * @throws {CampaignError} Throws if SDK or config parameters are missing
+   *
+   * @example
+   * const auth = new CampaignCli(sdk, config);
    */
   constructor(sdk, config) {
     if (!sdk || !config) {
@@ -27,9 +41,23 @@ class CampaignCli {
   }
 
   /**
-   * @param {*} options
-   * @returns {Promise<void>}
-   * @throws {CampaignError}
+   * Initializes a new ACC instance with the provided credentials.
+   *
+   * @param {Object} options - Initialization options
+   * @param {string} options.alias - Local alias for this instance (e.g., 'prod', 'staging')
+   * @param {string} options.host - URL of ACC root (e.g., 'http://localhost:8080')
+   * @param {string} options.user - Operator username
+   * @param {string} options.password - Operator password
+   * @returns {Promise<void>} Resolves when instance is initialized and logged in
+   * @throws {CampaignError} Throws if instance with alias already exists
+   *
+   * @example
+   * await auth.init({
+   *   alias: 'prod',
+   *   host: 'http://localhost:8080',
+   *   user: 'admin',
+   *   password: 'password'
+   * });
    */
   async init(options) {
     if (this.instanceIds.includes(options.alias)) {
@@ -44,9 +72,15 @@ class CampaignCli {
   }
 
   /**
-   * @param {*} options
-   * @returns {Promise<Client>}
-   * @throws {CampaignError}
+   * Logs in to an existing ACC instance.
+   *
+   * @param {Object} options - Login options
+   * @param {string} options.alias - Alias of the instance to log in to
+   * @returns {Promise<Object>} Resolves with the authenticated client
+   * @throws {CampaignError} Throws if instance doesn't exist or login fails
+   *
+   * @example
+   * const client = await auth.login({ alias: 'prod' });
    */
   async login(options) {
     const { host, user, password } =
@@ -72,7 +106,12 @@ class CampaignCli {
   }
 
   /**
-   * @returns {void}
+   * Lists all configured ACC instances.
+   *
+   * @returns {void} Outputs list of instances to console
+   *
+   * @example
+   * auth.list(); // Lists all configured instances
    */
   list() {
     console.log(`📚 Reading ${this.instanceIds.length} instance(s)`);

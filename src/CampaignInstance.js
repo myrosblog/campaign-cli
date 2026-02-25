@@ -2,15 +2,42 @@ import fs from "fs-extra";
 import path from "node:path";
 import CampaignError from "./CampaignError.js";
 
+/**
+ * Key for default configuration in campaign config
+ * @constant {string}
+ * @private
+ */
 const CONFIG_DEFAULT_KEY = "default";
 
 /**
+ * Campaign Instance class for interacting with ACC instances.
+ * Handles data checking, pulling, and downloading from ACC schemas.
+ *
  * @class CampaignInstance
+ * @classdesc Class for managing data operations with ACC instances
  */
 class CampaignInstance {
+  /**
+   * Creates a new CampaignInstance.
+   *
+   * @param {Object} client - Authenticated ACC client
+   * @param {Object} campaignConfig - Configuration object defining schemas and download options
+   * @param {Object} campaignConfig.default - Default configuration for all schemas
+   * @param {Object} [campaignConfig.*] - Schema-specific configurations
+   *
+   * @example
+   * const instance = new CampaignInstance(client, {
+   *   default: { filename: "%schema%_%name%.xml" },
+   *   "nms:recipient": { filename: "recipient_%name%.xml" }
+   * });
+   */
   constructor(client, campaignConfig) {
     this.client = client;
     this.campaignConfig = campaignConfig;
+    /**
+     * Array of schema names to process (excluding default config)
+     * @type {string[]}
+     */
     this.schemas = Object.keys(this.campaignConfig).filter(
       (key) => key !== CONFIG_DEFAULT_KEY,
     );
@@ -28,6 +55,19 @@ class CampaignInstance {
     });
   }
 
+  /**
+   * Gets query definition for a specific schema, merging with default config.
+   *
+   * @param {string} schema - Schema name (e.g., 'nms:recipient')
+   * @param {Object} baseQueryDef - Base query definition
+   * @returns {Object} Merged query definition
+   *
+   * @example
+   * const queryDef = instance._getQueryDefForSchema('nms:recipient', {
+   *   schema: 'nms:recipient',
+   *   operation: 'count'
+   * });
+   */
   _getQueryDefForSchema(schema, baseQueryDef) {
     const config = this.campaignConfig[schema]
       ? this.campaignConfig[schema]
@@ -40,6 +80,17 @@ class CampaignInstance {
     };
   }
 
+  /**
+   * Checks an ACC instance by counting records in each schema.
+   * Validates that the download path is available.
+   *
+   * @param {string} downloadPath - Path where data would be downloaded
+   * @returns {Promise<void>} Resolves when check is complete
+   * @throws {CampaignError} Throws if download path is not empty
+   *
+   * @example
+   * await instance.check('/path/to/download');
+   */
   async check(downloadPath) {
     console.log("📡 Checking instance...");
 
@@ -68,6 +119,16 @@ class CampaignInstance {
     }
   }
 
+  /**
+   * Pulls data from all schemas in the ACC instance.
+   * Implements pagination to handle large datasets.
+   *
+   * @param {string} downloadPath - Path where data will be downloaded
+   * @returns {Promise<void>} Resolves when pull operation is complete
+   *
+   * @example
+   * await instance.pull('/path/to/download');
+   */
   async pull(downloadPath) {
     console.log(`✨ Pulling instance to ${downloadPath}...`);
     if (!fs.existsSync(downloadPath)) {
@@ -96,6 +157,17 @@ class CampaignInstance {
     }
   }
 
+  /**
+   * Downloads records from a specific schema and saves them as XML files.
+   *
+   * @param {string} schema - Schema name to download
+   * @param {string} folderPath - Path where files will be saved
+   * @param {number} startLine - Starting line number for pagination
+   * @returns {Promise<number>} Number of records downloaded
+   *
+   * @example
+   * const count = await instance.download('nms:recipient', '/path/to/save', 1);
+   */
   async download(schema, folderPath, startLine) {
     const DomUtil = this.client.DomUtil;
 
@@ -160,10 +232,30 @@ class CampaignInstance {
     return recordsLength;
   }
 
+  /**
+   * Checks if a folder is empty or doesn't exist.
+   *
+   * @param {string} path - Path to check
+   * @returns {boolean} True if folder is empty or doesn't exist, false otherwise
+   *
+   * @example
+   * if (instance.isFolderEmpty('/path/to/check')) {
+   *   // Folder is empty or doesn't exist
+   * }
+   */
   isFolderEmpty(path) {
     return !fs.existsSync(path) || fs.readdirSync(path).length === 0;
   }
 
+  /**
+   * Saves SOAP request to archive file with timestamp.
+   *
+   * @param {string} rawRequest - Raw SOAP request XML
+   * @returns {void}
+   *
+   * @example
+   * instance.saveArchiveRequest('<soap:Envelope>...</soap:Envelope>');
+   */
   saveArchiveRequest(rawRequest) {
     const archiveRequest =
       "archives/" + this.getArchiveDate() + "-CampaignInstance-request.xml";
@@ -172,6 +264,15 @@ class CampaignInstance {
     });
   }
 
+  /**
+   * Saves SOAP response to archive file with timestamp.
+   *
+   * @param {string} rawResponse - Raw SOAP response XML
+   * @returns {void}
+   *
+   * @example
+   * instance.saveArchiveResponse('<soap:Envelope>...</soap:Envelope>');
+   */
   saveArchiveResponse(rawResponse) {
     const archiveResponse =
       "archives/" + this.getArchiveDate() + "-CampaignInstance-response.xml";
@@ -180,6 +281,14 @@ class CampaignInstance {
     });
   }
 
+  /**
+   * Generates timestamp string for archive files in format: YYYY/MM/DD/HH-mm-ss_ms
+   *
+   * @returns {string} Formatted timestamp string
+   *
+   * @example
+   * const timestamp = instance.getArchiveDate(); // "2023/01/15/14-30-45_123"
+   */
   getArchiveDate() {
     var ts_hms = new Date();
 
