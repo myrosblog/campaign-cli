@@ -8,13 +8,23 @@
 
 ## 🚀 Quick Start
 
-### Installation
+### Quick usage
 
 ```bash
-# Install globally (recommended)
-npm install -g campaign-cli
+campaign auth init --host https://instance.com --user username --password --alias staging
 
-# Verify installation
+campaign instance pull --alias staging
+# Downloaded /Administration/Configuration/Form rendering
+# Downloaded /Administration/Configuration/Dynamic Javascript pages
+```
+
+### Quick installation
+
+```bash
+git clone https://github.com/myrosblog/campaign-cli.git
+cd campaign-cli
+npm install
+npm link
 campaign --help
 ```
 
@@ -252,6 +262,10 @@ Contributions are welcome! Please follow these steps:
 - Write tests for new features
 - Update README for significant changes
 - Keep commits focused and descriptive
+
+## Roadmap
+
+- Publish to npm
 
 ## 🔒 Security
 
