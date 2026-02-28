@@ -137,6 +137,14 @@
       }
     }
   },
+  "nms:delivery": {
+    "filename": "/Campaign Management/Deliveries/%internalName%.xml",
+    "queryDef": {
+      "where": {
+        "condition": [{ "expr": "@builtIn = false AND @isModel = true" }]
+      }
+    }
+  },
   "nms:includeView": {
     "filename": "/Resources/Campaign Management/Personalization blocks/%name%.xml",
     "queryDef": {
