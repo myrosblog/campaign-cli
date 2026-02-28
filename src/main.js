@@ -68,6 +68,16 @@ program
         handleCampaignError(err);
       }
     }),
+  )
+  // IP
+  .addCommand(
+    new Command().name("ip").action(async () => {
+      try {
+        await auth.ip();
+      } catch (err) {
+        handleCampaignError(err);
+      }
+    }),
   );
 
 // INSTANCE

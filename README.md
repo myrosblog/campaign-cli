@@ -94,6 +94,9 @@ Create
 # List all configured instances
 acc auth list
 
+# Troubleshoot IP via https://api.db-ip.com/v2/free/self @see https://opensource.adobe.com/acc-js-sdk/connecting.html
+acc auth ip
+
 # Login to an existing instance
 acc auth login --alias prod
 

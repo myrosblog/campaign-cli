@@ -40,6 +40,12 @@ class CampaignAuth {
     );
   }
 
+  async ip(){
+    console.log(`Fetching IP address...`);
+    const ip = await this.sdk.ip();
+    console.log(ip);
+  }
+
   /**
    * Initializes a new ACC instance with the provided credentials.
    *
