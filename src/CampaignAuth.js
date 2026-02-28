@@ -36,7 +36,7 @@ class CampaignAuth {
     this.instances = config.get(this.INSTANCES_KEY) || {};
     this.instanceIds = Object.keys(this.instances);
     console.log(
-      `🏠 acc auth initialized with SDK ${this.sdk.getSDKVersion().version} and authentication from ${this.config.path}`,
+      `🏠 acc initialized with SDK ${this.sdk.getSDKVersion().version} and authentication from ${this.config.path}`,
     );
   }
 

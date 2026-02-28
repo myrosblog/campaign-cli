@@ -95,29 +95,30 @@ class CampaignInstance {
   async check(downloadPath) {
     console.log("📡 Checking instance...");
 
-    for (const schema of this.schemas) {
-      const baseQueryDef = { schema: schema, operation: "count" };
-      const queryDef = this._getQueryDefForSchema(schema, baseQueryDef);
+    for (const [schemaId, schemaConfig] of Object.entries(this.campaignConfig)) {
+
+      const baseQueryDef = { schema: schemaId, operation: "count" };
+      const queryDef = this._getQueryDefForSchema(schemaId, baseQueryDef);
       const query = this.client.NLWS.xtkQueryDef.create(queryDef);
 
       let message = "";
       try {
         const records = await query.executeQuery();
-        message = `${records.count} found.`;
+        message = `${records.count} found (${schemaId}).`;
       } catch (err) {
         message = `⚠️ Error executing query: ${err.message}.`;
       } finally {
-        console.log(`- ${schema}: ` + message);
+        console.log(`- ${schemaConfig.filename}: ` + message);
       }
     }
 
     console.log(`📂 Will be downloaded to ${downloadPath}`);
 
-    if (!this.isFolderEmpty(downloadPath)) {
-      throw new CampaignError(
-        `Directory already exists and is not empty. Please choose an empty directory or a different path.`,
-      );
-    }
+    // if (!this.isFolderEmpty(downloadPath)) {
+    //   throw new CampaignError(
+    //     `Directory already exists and is not empty. Please choose an empty directory or a different path.`,
+    //   );
+    // }
   }
 
   /**
@@ -142,8 +143,8 @@ class CampaignInstance {
       //   );
     }
 
-    for (const schema of this.schemas) {
-      console.log(`- Schema ${schema}`);
+    for (const [schemaId, schemaConfig] of Object.entries(this.campaignConfig)) {
+      console.log(`- Schema ${schemaId}`);
 
       const lineCount = 10;
       let startLine = 1;
@@ -152,7 +153,7 @@ class CampaignInstance {
         console.log(
           `  Downloading lines ${startLine} to ${startLine + lineCount - 1}...`,
         );
-        recordsLength = await this.download(schema, downloadPath, startLine);
+        recordsLength = await this.download(schemaId, downloadPath, startLine);
         startLine += lineCount;
       } while (recordsLength >= lineCount);
     }
