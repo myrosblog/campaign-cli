@@ -36,18 +36,18 @@ Folder structure recommendation, under a local folder, i.e. `Download`
 /Downloads/ $ campaign 
 
 
-├── campaign-cli/                  # Clone of this source code
+├── acc/                  # Clone of this source code
 │
 ├── instance1-staging/             # Staging Instance 1
 │   ├── config/                          # Instance-specific config => must be created
-│   │   └── campaign.config.json
+│   │   └── acc.config.json
 │   └── Administration/Configuration/    # Downloaded schemas => automatically downloaded
 │       ├── schema1.xml
 │       └── schema2.xml
 │
 └── instance1-production/          # Production Instance 2
     ├── config/
-    │   └── campaign.config.json
+    │   └── acc.config.json
     └── Administration/Configuration/
         ├── schema1.xml
         └── schema2.xml
@@ -258,7 +258,7 @@ bin/
 └── campaign            # Executable wrapper
 
 config/
-└── campaign.config.json # Default configuration template
+└── acc.config.json # Default configuration template
 ```
 
 ### Running Tests

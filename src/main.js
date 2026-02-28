@@ -16,11 +16,7 @@ const dirPackage = path.resolve(dirMain, "..");
 const authFile = new Configstore("campaign-cli.auth");
 const auth = new CampaignAuth(sdk, authFile);
 const defaultDistRoot = path.join(process.cwd());
-const defaultConfigPath = path.join(
-  process.cwd(),
-  "config",
-  "campaign.config.json",
-);
+const defaultConfigPath = path.join(process.cwd(), "config", "acc.config.json");
 
 // AUTH
 program
@@ -92,7 +88,7 @@ program
       )
       .option(
         "--config <path>",
-        "Path to the campaign.config.json file. Defaults ./config/campaign.config.json.",
+        "Path to the configuration file. Defaults ./config/acc.config.json.",
         defaultConfigPath,
       )
       .option(
@@ -111,7 +107,7 @@ program
               `🛠️ Config not found, initalializing ${options.config}`,
             );
             fs.copySync(
-              path.join(dirPackage, "config", "campaign.config.json"),
+              path.join(dirPackage, "config", "acc.config.json"),
               options.config,
             );
           } else {
@@ -122,7 +118,7 @@ program
           const instance = new CampaignInstance(
             client,
             campaignConfig,
-            options.verbose,
+            options,
           );
           await instance.check(options.path);
         } catch (err) {
@@ -145,14 +141,18 @@ program
       )
       .option(
         "--config <path>",
-        "Path to the campaign.config.json file. Defaults ./config/campaign.config.json.",
+        "Path to the configuration file. Defaults ./config/acc.config.json.",
         defaultConfigPath,
       )
       .action(async (options) => {
         try {
           const campaignConfig = JSON.parse(fs.readFileSync(options.config));
           const client = await auth.login({ alias: options.alias });
-          const instance = new CampaignInstance(client, campaignConfig);
+          const instance = new CampaignInstance(
+            client,
+            campaignConfig,
+            options,
+          );
           await instance.pull(options.path);
         } catch (err) {
           handleCampaignError(err);

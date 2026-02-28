@@ -4,10 +4,10 @@ import CampaignError from "./CampaignError.js";
  * Campaign CLI class for managing ACC (Campaign Classic) instances.
  * Provides authentication, instance management, and connection capabilities.
  *
- * @class CampaignCli
+ * @class CampaignAuth
  * @classdesc Main class for interacting with ACC instances
  */
-class CampaignCli {
+class CampaignAuth {
   /**
    * Configuration key for storing instances
    * @type {string}
@@ -16,19 +16,19 @@ class CampaignCli {
   INSTANCES_KEY = "instances";
 
   /**
-   * Creates a new CampaignCli instance.
+   * Creates a new CampaignAuth instance.
    *
    * @param {Object} sdk - ACC JS SDK instance
    * @param {Object} config - Configstore instance for persistent storage
    * @throws {CampaignError} Throws if SDK or config parameters are missing
    *
    * @example
-   * const auth = new CampaignCli(sdk, config);
+   * const auth = new CampaignAuth(sdk, config);
    */
   constructor(sdk, config) {
     if (!sdk || !config) {
       throw new CampaignError(
-        "SDK and Configstore instances are required to initialize CampaignCli.",
+        "SDK and Configstore instances are required to initialize CampaignAuth.",
       );
     }
     this.sdk = sdk;
@@ -36,7 +36,7 @@ class CampaignCli {
     this.instances = config.get(this.INSTANCES_KEY) || {};
     this.instanceIds = Object.keys(this.instances);
     console.log(
-      `🏠 CampaignCli initialized with SDK ${this.sdk.getSDKVersion().version} and authentication from ${this.config.path}`,
+      `🏠 acc auth initialized with SDK ${this.sdk.getSDKVersion().version} and authentication from ${this.config.path}`,
     );
   }
 
@@ -125,4 +125,4 @@ class CampaignCli {
   }
 }
 
-export default CampaignCli;
+export default CampaignAuth;

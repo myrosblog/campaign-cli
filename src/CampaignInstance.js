@@ -31,10 +31,10 @@ class CampaignInstance {
    *   "nms:recipient": { filename: "recipient_%name%.xml" }
    * });
    */
-  constructor(client, campaignConfig, verbose) {
+  constructor(client, campaignConfig, options = { verbose: false }) {
     this.client = client;
     this.campaignConfig = campaignConfig;
-    this.verbose = verbose;
+    this.verbose = options.verbose;
     /**
      * Array of schema names to process (excluding default config)
      * @type {string[]}
