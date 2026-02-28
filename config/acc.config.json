@@ -130,7 +130,7 @@
     }
   },
   "nms:operation": {
-    "filename": "/Campaign Management/Campaigns/%name%.xml",
+    "filename": "/Campaign Management/Campaigns/%internalName%.xml",
     "queryDef": {
       "where": {
         "condition": [{ "expr": "@builtIn = false AND @isModel = true" }]

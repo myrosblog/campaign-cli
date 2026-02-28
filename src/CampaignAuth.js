@@ -74,7 +74,7 @@ class CampaignAuth {
     const { alias, host, user, password } = options;
     this.config.set(`${this.INSTANCES_KEY}.${alias}`, { host, user, password });
     console.log(`✅ Instance ${alias} added successfully.`);
-    return this.login({ alias: alias });
+    return this.login(options);
   }
 
   /**

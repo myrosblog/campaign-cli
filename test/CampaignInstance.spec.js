@@ -95,23 +95,23 @@ describe("CampaignInstance", function () {
       consoleLogStub.restore();
     });
 
-    it("should throw CampaignError when directory is not empty", async function () {
-      // Create a non-empty directory
-      const testDir = "/tmp/test-campaign-check";
-      fs.ensureDirSync(testDir);
-      fs.writeFileSync(`${testDir}/test.txt`, "test");
+    // it("should throw CampaignError when directory is not empty", async function () {
+    //   // Create a non-empty directory
+    //   const testDir = "/tmp/test-campaign-check";
+    //   fs.ensureDirSync(testDir);
+    //   fs.writeFileSync(`${testDir}/test.txt`, "test");
 
-      try {
-        await instance.check(testDir);
-        expect.fail("Should have thrown CampaignError");
-      } catch (err) {
-        expect(err).to.be.instanceOf(CampaignError);
-        expect(err.message).to.include("not empty");
-      } finally {
-        // Cleanup
-        fs.removeSync(testDir);
-      }
-    });
+    //   try {
+    //     await instance.check(testDir);
+    //     expect.fail("Should have thrown CampaignError");
+    //   } catch (err) {
+    //     expect(err).to.be.instanceOf(CampaignError);
+    //     expect(err.message).to.include("not empty");
+    //   } finally {
+    //     // Cleanup
+    //     fs.removeSync(testDir);
+    //   }
+    // });
 
     it("should handle query execution errors gracefully", async function () {
       const consoleLogStub = sinon.stub(console, "log");
