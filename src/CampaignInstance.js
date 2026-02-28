@@ -95,8 +95,9 @@ class CampaignInstance {
   async check(downloadPath) {
     console.log("📡 Checking instance...");
 
-    for (const [schemaId, schemaConfig] of Object.entries(this.campaignConfig)) {
-
+    for (const [schemaId, schemaConfig] of Object.entries(
+      this.campaignConfig,
+    )) {
       const baseQueryDef = { schema: schemaId, operation: "count" };
       const queryDef = this._getQueryDefForSchema(schemaId, baseQueryDef);
       const query = this.client.NLWS.xtkQueryDef.create(queryDef);
@@ -143,7 +144,9 @@ class CampaignInstance {
       //   );
     }
 
-    for (const [schemaId, schemaConfig] of Object.entries(this.campaignConfig)) {
+    for (const [schemaId, schemaConfig] of Object.entries(
+      this.campaignConfig,
+    )) {
       console.log(`- Schema ${schemaId}`);
 
       const lineCount = 10;
@@ -162,7 +165,7 @@ class CampaignInstance {
   /**
    * Downloads records from a specific schema and saves them as XML files.
    *
-   * @param {string} schema - Schema name to download
+   * @param {string} schemaId - Schema name to download
    * @param {string} folderPath - Path where files will be saved
    * @param {number} startLine - Starting line number for pagination
    * @returns {Promise<number>} Number of records downloaded
@@ -170,11 +173,11 @@ class CampaignInstance {
    * @example
    * const count = await instance.download('nms:recipient', '/path/to/save', 1);
    */
-  async download(schema, folderPath, startLine) {
+  async download(schemaId, folderPath, startLine) {
     const DomUtil = this.client.DomUtil;
 
     const baseQueryDef = {
-      schema: schema,
+      schema: schemaId,
       operation: "select",
       select: {
         node: [{ expr: "data" }],
@@ -182,7 +185,7 @@ class CampaignInstance {
       startLine: startLine,
       lineCount: 10, // @todo pagination
     };
-    const queryDef = this._getQueryDefForSchema(schema, baseQueryDef);
+    const queryDef = this._getQueryDefForSchema(schemaId, baseQueryDef);
     const queryDefXml = this.client.DomUtil.fromJSON(
       "queryDef",
       queryDef,
@@ -191,8 +194,8 @@ class CampaignInstance {
 
     const query = this.client.NLWS.xml.xtkQueryDef.create(queryDefXml);
 
-    const config = this.campaignConfig[schema]
-      ? this.campaignConfig[schema]
+    const config = this.campaignConfig[schemaId]
+      ? this.campaignConfig[schemaId]
       : this.campaignConfig[CONFIG_DEFAULT_KEY];
     const configFilename = config.filename;
 
@@ -216,11 +219,12 @@ class CampaignInstance {
           .replace("%namespace%", namespace)
           .replace("%name%", name)
           .replace("%internalName%", internalName)
-          .replace("%schema%", schema.replace(":", "_"));
+          .replace("%schema%", schemaId.replace(":", "_"));
         const filepath = path.join(folderPath, filename);
         const data = DomUtil.toXMLString(child);
         fs.outputFileSync(filepath, data);
-        console.log(`  /${filename}`);
+        const filenameOnly = path.basename(filepath);
+        process.stdout.write(`${filenameOnly}, `);
 
         child = DomUtil.getNextSiblingElement(child);
       }
@@ -229,7 +233,7 @@ class CampaignInstance {
     } catch (err) {
       message = `⚠️ Error executing query: ${err.message}.`;
     } finally {
-      console.log(`- ${schema}: ` + message);
+      console.log(`- ${schemaId}: ` + message);
     }
     return recordsLength;
   }
