@@ -11,9 +11,9 @@
 ### Quick usage
 
 ```bash
-campaign auth init --host https://instance.com --user username --password --alias staging
+acc auth init --host https://instance.com --user username --password --alias staging
 
-campaign instance pull --alias staging
+acc instance pull --alias staging
 # Downloaded /Administration/Configuration/Form rendering
 # Downloaded /Administration/Configuration/Dynamic Javascript pages
 ```
@@ -21,27 +21,26 @@ campaign instance pull --alias staging
 ### Quick installation
 
 ```bash
+cd ~/Downloads
 git clone https://github.com/myrosblog/campaign-cli.git
 cd campaign-cli
 npm install
 npm link
-campaign --help
+acc # check installation
 ```
 
 ### Basic Usage
 
-Folder structure recommendation, under a local folder, i.e. `Download`
+Folder structure recommendation, under a local folder, i.e. `Downloads`
 
 ```bash
-/Downloads/ $ campaign 
-
-
-├── acc/                  # Clone of this source code
+/Downloads/
+├── campaign-cli/                  # Clone of this source code
 │
 ├── instance1-staging/             # Staging Instance 1
-│   ├── config/                          # Instance-specific config => must be created
+│   ├── config/                          # Instance-specific config => automatically created with acc check
 │   │   └── acc.config.json
-│   └── Administration/Configuration/    # Downloaded schemas => automatically downloaded
+│   └── Administration/Configuration/    # Downloaded schemas => automatically downloaded with acc pull
 │       ├── schema1.xml
 │       └── schema2.xml
 │
@@ -56,7 +55,7 @@ Folder structure recommendation, under a local folder, i.e. `Download`
 #### Step 1: Configure an ACC Instance
 
 ```bash
-campaign auth init \
+acc auth init \
   --host http://localhost:8080 \
   --user admin \
   --password admin \
@@ -71,7 +70,8 @@ This command:
 #### Step 2: Pull Data from Your Instance with default configuration
 
 ```bash
-campaign instance pull --alias local
+acc instance check --alias local
+acc instance pull --alias local
 ```
 
 This command:
@@ -92,23 +92,23 @@ Create
 
 ```bash
 # List all configured instances
-campaign auth list
+acc auth list
 
 # Login to an existing instance
-campaign auth login --alias prod
+acc auth login --alias prod
 
 # Initialize a new instance
-campaign auth init --alias staging --host https://staging.example.com
+acc auth init --alias staging --host https://staging.example.com
 ```
 
 ### Data Operations
 
 ```bash
 # Check instance (count records without downloading)
-campaign instance check --alias prod
+acc instance check --alias prod
 
 # Pull data with custom config
-campaign instance pull \
+acc instance pull \
   --alias prod \
   --path ./my-project/data \
   --config ./config/acc.config.json
@@ -126,14 +126,7 @@ Create a `acc.config.json` file to customize data pulling:
   "nms:recipient": {
     "filename": "recipients/%name%.xml",
     "queryDef": {
-      "operation": "select",
-      "select": {
-        "node": [
-          { "expr": "@id" },
-          { "expr": "@name" },
-          { "expr": "data" }
-        ]
-      }
+      "where": {"condition": [{ "expr": "@builtIn = false AND @isModel = true" }]},
     }
   }
 }
@@ -145,34 +138,34 @@ Create a `acc.config.json` file to customize data pulling:
 
 ```bash
 # Setup development environment
-campaign auth init --alias dev --host http://localhost:8080
+acc auth init --alias dev --host http://localhost:8080
 
 # Pull specific schemas
-campaign instance pull --alias dev
+acc instance pull --alias dev
 
 # Regular data refresh
-campaign instance pull --alias prod --path ./backup/$(date +%Y-%m-%d)
+acc instance pull --alias prod --path ./backup/$(date +%Y-%m-%d)
 ```
 
 ### For DevOps Teams
 
 ```bash
 # CI/CD integration
-campaign auth init --alias ci --host $ACC_HOST --user $ACC_USER --password $ACC_PASSWORD
-campaign instance check --alias ci || exit 1
+acc auth init --alias ci --host $ACC_HOST --user $ACC_USER --password $ACC_PASSWORD
+acc instance check --alias ci || exit 1
 
 # Automated backups
-campaign instance pull --alias prod --path /backups/acc/$(date +%Y-%m-%d)
+acc instance pull --alias prod --path /backups/acc/$(date +%Y-%m-%d)
 ```
 
 ### For Data Analysts
 
 ```bash
 # Quick data extraction
-campaign instance pull --alias analytics --config ./config/analytics.config.json
+acc instance pull --alias analytics --config ./config/analytics.config.json
 
 # Schema documentation
-campaign instance check --alias prod > schema_report.txt
+acc instance check --alias prod > schema_report.txt
 ```
 
 ## 🔧 Advanced Configuration
@@ -180,31 +173,10 @@ campaign instance check --alias prod > schema_report.txt
 ### Custom Paths and Configs
 
 ```bash
-campaign instance pull \
+acc instance pull \
   --alias staging \
   --path /projects/acc-migration/data \
   --config ./config/migration.config.json
-```
-
-### Configuration File Options
-
-```json
-{
-  "default": {
-    "filename": "%schema%/%name%.xml",
-    "queryDef": {
-      "operation": "select",
-      "select": {
-        "node": [{ "expr": "data" }]
-      },
-      "where": {
-        "condition": [
-          { "expr": "@created > '2023-01-01'" }
-        ]
-      }
-    }
-  }
-}
 ```
 
 ### Filename Patterns
@@ -255,7 +227,7 @@ test/
 └── CampaignError.spec.js  # Error handling tests
 
 bin/
-└── campaign            # Executable wrapper
+└── acc            # Executable wrapper
 
 config/
 └── acc.config.json # Default configuration template

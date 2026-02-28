@@ -1,5 +1,8 @@
+// npm
 import fs from "fs-extra";
 import path from "node:path";
+import chalk from 'chalk';
+// acc
 import CampaignError from "./CampaignError.js";
 
 /**
@@ -105,7 +108,7 @@ class CampaignInstance {
       let message = "";
       try {
         const records = await query.executeQuery();
-        message = `${records.count} found (${schemaId}).`;
+        message = `${records.count} found (${chalk.bgCyan(schemaId)}).`;
       } catch (err) {
         message = `⚠️ Error executing query: ${err.message}.`;
       } finally {
@@ -147,7 +150,7 @@ class CampaignInstance {
     for (const [schemaId, schemaConfig] of Object.entries(
       this.campaignConfig,
     )) {
-      console.log(`- Schema ${schemaId}`);
+      console.log(`- Schema ${chalk.bgCyan(schemaId)}`);
 
       const lineCount = 10;
       let startLine = 1;
@@ -224,7 +227,7 @@ class CampaignInstance {
         const data = DomUtil.toXMLString(child);
         fs.outputFileSync(filepath, data);
         const filenameOnly = path.basename(filepath);
-        process.stdout.write(`${filenameOnly}, `);
+        process.stdout.write(`${chalk.underline(filenameOnly)} `);
 
         child = DomUtil.getNextSiblingElement(child);
       }
@@ -233,7 +236,7 @@ class CampaignInstance {
     } catch (err) {
       message = `⚠️ Error executing query: ${err.message}.`;
     } finally {
-      console.log(`- ${schemaId}: ` + message);
+      console.log(` => ` + message + '\n');
     }
     return recordsLength;
   }
