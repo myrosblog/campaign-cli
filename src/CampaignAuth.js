@@ -36,7 +36,7 @@ class CampaignCli {
     this.instances = config.get(this.INSTANCES_KEY) || {};
     this.instanceIds = Object.keys(this.instances);
     console.log(
-      `🏠 CampaignCli initialized with SDK ${this.sdk.getSDKVersion().version} and config ${this.config.path}`,
+      `🏠 CampaignCli initialized with SDK ${this.sdk.getSDKVersion().version} and authentication from ${this.config.path}`,
     );
   }
 
@@ -87,7 +87,7 @@ class CampaignCli {
       this.config.get(`instances.${options.alias}`) || {};
     if (!host || !user || !password) {
       throw new CampaignError(
-        `Instance with alias "${options.alias}" doesn't exist.`,
+        `Authentication with alias "${options.alias}" doesn't exist. Use campaign auth list to see all configured instances or campaign auth init to add a new instance.`,
       );
     }
     console.log(`↔️ Connecting ${user}@${host}...`);
@@ -115,6 +115,10 @@ class CampaignCli {
    */
   list() {
     console.log(`📚 Reading ${this.instanceIds.length} instance(s)`);
+    if(this.instanceIds.length === 0) {
+      console.log(`  No instances configured yet. Use "campaign auth init" to add an instance.`);
+      return;
+    }
     for (const [key, value] of Object.entries(this.instances)) {
       console.log(`  - "${key}": ${value.user}@${value.host}`);
     }

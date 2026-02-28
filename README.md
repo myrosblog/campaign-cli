@@ -33,7 +33,9 @@ campaign --help
 Folder structure recommendation, under a local folder, i.e. `Download`
 
 ```bash
-Downloads/
+/Downloads/ $ campaign 
+
+
 ├── campaign-cli/                  # Clone of this source code
 │
 ├── instance1-staging/             # Staging Instance 1
@@ -103,7 +105,7 @@ campaign auth init --alias staging --host https://staging.example.com
 
 ```bash
 # Check instance (count records without downloading)
-campaign instance check --alias prod --path ./dist
+campaign instance check --alias prod
 
 # Pull data with custom config
 campaign instance pull \

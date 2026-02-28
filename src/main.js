@@ -2,19 +2,25 @@
 import { program, Command } from "commander";
 import sdk from "@adobe/acc-js-sdk";
 import Configstore from "configstore";
-import fs from "node:fs";
+import fs from "fs-extra";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 // Campaign
 import CampaignError from "./CampaignError.js";
 import CampaignAuth from "./CampaignAuth.js";
 import CampaignInstance from "./CampaignInstance.js";
 
+const dirMain = path.dirname(fileURLToPath(import.meta.url));
+const dirPackage = path.resolve(dirMain, "..");
 
-const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf8"));
-const config = new Configstore(packageJson.name);
-const auth = new CampaignAuth(sdk, config);
+const authFile = new Configstore("campaign-cli.auth");
+const auth = new CampaignAuth(sdk, authFile);
 const defaultDistRoot = path.join(process.cwd());
-const defaultConfigPath = path.join(process.cwd(), "config", "campaign.config.json");
+const defaultConfigPath = path.join(
+  process.cwd(),
+  "config",
+  "campaign.config.json",
+);
 
 // AUTH
 program
@@ -82,18 +88,42 @@ program
       .option(
         "--path <path>",
         "Path where the command should run. Defaults to current working directory.",
-        defaultDistRoot
+        defaultDistRoot,
       )
       .option(
         "--config <path>",
         "Path to the campaign.config.json file. Defaults ./config/campaign.config.json.",
-        defaultConfigPath
+        defaultConfigPath,
+      )
+      .option(
+        "--verbose",
+        "Verbose output with details on each configuration item. Defaults to false.",
+        false,
       )
       .action(async (options) => {
         try {
+          // if the config file doesn't exist at the default location, copy the example config there
+          if (
+            options.config == defaultConfigPath &&
+            !fs.existsSync(options.config)
+          ) {
+            console.log(
+              `🛠️ Config not found, initalializing ${options.config}`,
+            );
+            fs.copySync(
+              path.join(dirPackage, "config", "campaign.config.json"),
+              options.config,
+            );
+          } else {
+            console.log(`🛠️ Using config ${options.config}`);
+          }
           const campaignConfig = JSON.parse(fs.readFileSync(options.config));
           const client = await auth.login({ alias: options.alias });
-          const instance = new CampaignInstance(client, campaignConfig);
+          const instance = new CampaignInstance(
+            client,
+            campaignConfig,
+            options.verbose,
+          );
           await instance.check(options.path);
         } catch (err) {
           handleCampaignError(err);
@@ -111,12 +141,12 @@ program
       .option(
         "--path <path>",
         "Path where the command should run. Defaults to current working directory.",
-        defaultDistRoot
+        defaultDistRoot,
       )
       .option(
         "--config <path>",
         "Path to the campaign.config.json file. Defaults ./config/campaign.config.json.",
-        defaultConfigPath
+        defaultConfigPath,
       )
       .action(async (options) => {
         try {
