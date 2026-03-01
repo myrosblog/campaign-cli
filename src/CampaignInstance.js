@@ -1,7 +1,7 @@
 // npm
 import fs from "fs-extra";
 import path from "node:path";
-import chalk from 'chalk';
+import chalk from "chalk";
 // acc
 import CampaignError from "./CampaignError.js";
 
@@ -20,6 +20,8 @@ const CONFIG_DEFAULT_KEY = "default";
  * @classdesc Class for managing data operations with ACC instances
  */
 class CampaignInstance {
+  REGEX_CONFIG_ATTRIBUTE = /{(.+?)}/g;
+
   /**
    * Creates a new CampaignInstance.
    *
@@ -85,8 +87,11 @@ class CampaignInstance {
   }
 
   /**
-   * Checks an ACC instance by counting records in each schema.
-   * Validates that the download path is available.
+   * Checks the ACC instance & config by getting records for each schema:
+   * - xtkQueryDef.create(schema)
+   * - adds attributes from the config
+   * - calls executeQuery() and parses to get records.length
+   * - if verbose, outputs the list of filenames to be created
    *
    * @param {string} downloadPath - Path where data would be downloaded
    * @returns {Promise<void>} Resolves when check is complete
@@ -95,28 +100,56 @@ class CampaignInstance {
    * @example
    * await instance.check('/path/to/download');
    */
-  async check(downloadPath) {
+  async check(options) {
     console.log("📡 Checking instance...");
+    // don't deconstruct "path" to avoid confusion with the "path" module
+    const { verbose } = options;
 
     for (const [schemaId, schemaConfig] of Object.entries(
       this.campaignConfig,
     )) {
-      const baseQueryDef = { schema: schemaId, operation: "count" };
+      const baseQueryDef = {
+        schema: schemaId,
+        operation: "select",
+        select: { node: [] },
+      };
       const queryDef = this._getQueryDefForSchema(schemaId, baseQueryDef);
+      // get all attributes from the config
+      const configAttributes =
+        this._getAttributesFromSchemaConfig(schemaConfig); // [ '@name', '@namespace' ]
+      queryDef.select.node = configAttributes.map((attr) => ({ expr: attr }));
+      // API call
       const query = this.client.NLWS.xtkQueryDef.create(queryDef);
-
+      // parsing
       let message = "";
       try {
-        const records = await query.executeQuery();
-        message = `${records.count} found (${chalk.bgCyan(schemaId)}).`;
+        const data = await query.executeQuery();
+        const firstKey = Object.keys(data)[0];
+        const records = data[firstKey] || [];
+        message = `${records.length} found (${chalk.bgCyan(schemaId)}).`;
+        if (verbose) {
+          message +=
+            "\n" +
+            records
+              .map((record) => {
+                const filepath = this._computeFilename(
+                  schemaConfig.filename,
+                  configAttributes,
+                  record,
+                );
+                const filenameOnly = path.basename(filepath);
+                return `${chalk.underline(filenameOnly)}`;
+              })
+              .join(" ");
+        }
       } catch (err) {
         message = `⚠️ Error executing query: ${err.message}.`;
       } finally {
-        console.log(`- ${schemaConfig.filename}: ` + message);
+        console.log(`- ${schemaConfig.filename}: ` + message + "\n");
       }
     }
 
-    console.log(`📂 Will be downloaded to ${downloadPath}`);
+    console.log(`📂 Will be downloaded to ${options.path}`);
 
     // if (!this.isFolderEmpty(downloadPath)) {
     //   throw new CampaignError(
@@ -202,6 +235,8 @@ class CampaignInstance {
       : this.campaignConfig[CONFIG_DEFAULT_KEY];
     const configFilename = config.filename;
 
+    const configAttributes = this._getAttributesFromSchemaConfig(config); // [ '@name', '@namespace' ]
+
     let message = "";
     var recordsLength = 0;
     try {
@@ -211,18 +246,12 @@ class CampaignInstance {
       // @see https://opensource.adobe.com/acc-js-sdk/domHelper.html
       while (child) {
         recordsLength++;
-
-        const namespace = DomUtil.getAttributeAsString(child, "namespace");
-        const name = DomUtil.getAttributeAsString(child, "name");
-        const internalName = DomUtil.getAttributeAsString(
+        const filename = this._computeFilename(
+          configFilename,
+          configAttributes,
           child,
-          "internalName",
+          false,
         );
-        const filename = configFilename
-          .replace("%namespace%", namespace)
-          .replace("%name%", name)
-          .replace("%internalName%", internalName)
-          .replace("%schema%", schemaId.replace(":", "_"));
         const filepath = path.join(folderPath, filename);
         const data = DomUtil.toXMLString(child);
         fs.outputFileSync(filepath, data);
@@ -236,9 +265,32 @@ class CampaignInstance {
     } catch (err) {
       message = `⚠️ Error executing query: ${err.message}.`;
     } finally {
-      console.log(` => ` + message + '\n');
+      console.log(` => ` + message + "\n");
     }
     return recordsLength;
+  }
+
+  _getAttributesFromSchemaConfig(schemaConfig) {
+    const configAttributesRe = schemaConfig.filename.matchAll(
+      this.REGEX_CONFIG_ATTRIBUTE,
+    ); // [object RegExp String Iterator]
+    const configAttributesArr = Array.from(configAttributesRe); // [ [ '@name', '@name' ], ... ]
+    return configAttributesArr.map((attr) => attr[1]); // [ '@name', '@namespace' ]
+  }
+
+  _computeFilename(configFilename, configAttributes, record, json = true) {
+    const DomUtil = this.client.DomUtil;
+    var filename = configFilename;
+    for (let configAttribute of configAttributes) {
+      const value = json
+        ? record[configAttribute.replace("@", "")]
+        : DomUtil.getAttributeAsString(
+            record,
+            configAttribute.replace("@", ""),
+          );
+      filename = filename.replace(`{${configAttribute}}`, value);
+    }
+    return filename;
   }
 
   /**

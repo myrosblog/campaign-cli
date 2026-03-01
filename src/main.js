@@ -130,7 +130,7 @@ program
             campaignConfig,
             options,
           );
-          await instance.check(options.path);
+          await instance.check(options);
         } catch (err) {
           handleCampaignError(err);
         }

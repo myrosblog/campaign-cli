@@ -1,30 +1,30 @@
 {
   "nms:localOrgUnit": {
-    "filename": "/Administration/Access Management/Organizational entities/%name%.xml",
+    "filename": "/Administration/Access Management/Organizational entities/{@name}.xml",
     "queryDef": {
       "where": { "condition": [{ "expr": "@name NOT LIKE 'xtk%'" }] }
     }
   },
   "nms:deliveryMapping": {
-    "filename": "/Administration/Campaign Management/Target mappings/%name%.xml",
+    "filename": "/Administration/Campaign Management/Target mappings/{@name}.xml",
     "queryDef": {
       "where": { "condition": [{ "expr": "@builtIn = false" }] }
     }
   },
   "nms:typology": {
-    "filename": "/Administration/Campaign Management/Typology management/Typologies/%name%.xml",
+    "filename": "/Administration/Campaign Management/Typology management/Typologies/{@name}.xml",
     "queryDef": {
       "where": { "condition": [{ "expr": "@name NOT LIKE 'xtk%'" }] }
     }
   },
   "nms:typologyRule": {
-    "filename": "/Administration/Campaign Management/Typology management/Typology rules/%name%.xml",
+    "filename": "/Administration/Campaign Management/Typology management/Typology rules/{@name}.xml",
     "queryDef": {
       "where": { "condition": [{ "expr": "@name NOT LIKE 'xtk%'" }] }
     }
   },
   "xtk:srcSchema": {
-    "filename": "/Administration/Configuration/Data schemas/%namespace%/%name%.xml",
+    "filename": "/Administration/Configuration/Data schemas/{@namespace}/{@name}.xml",
     "queryDef": {
       "where": {
         "condition": [
@@ -36,7 +36,7 @@
     }
   },
   "xtk:jssp": {
-    "filename": "/Administration/Configuration/Dynamic JavaScript pages/%namespace%/%name%.js",
+    "filename": "/Administration/Configuration/Dynamic JavaScript pages/{@namespace}/{@name}.js",
     "queryDef": {
       "where": {
         "condition": [
@@ -48,7 +48,7 @@
     }
   },
   "xtk:formRendering": {
-    "filename": "/Administration/Configuration/Form rendering/%internalName%.css",
+    "filename": "/Administration/Configuration/Form rendering/{@internalName}.css",
     "queryDef": {
       "where": {
         "condition": [
@@ -61,7 +61,7 @@
   },
 
   "xtk:form": {
-    "filename": "/Administration/Configuration/Input forms/%namespace%/%name%.xml",
+    "filename": "/Administration/Configuration/Input forms/{@namespace}/{@name}.xml",
     "queryDef": {
       "where": {
         "condition": [
@@ -73,7 +73,7 @@
     }
   },
   "xtk:javascript": {
-    "filename": "/Administration/Configuration/JavaScript codes/%namespace%/%name%.js",
+    "filename": "/Administration/Configuration/JavaScript codes/{@namespace}/{@name}.js",
     "queryDef": {
       "where": {
         "condition": [
@@ -85,7 +85,7 @@
     }
   },
   "xtk:navtree": {
-    "filename": "/Administration/Configuration/Navigation hierarchies/%namespace%/%name%.xml",
+    "filename": "/Administration/Configuration/Navigation hierarchies/{@namespace}/{@name}.xml",
     "queryDef": {
       "where": {
         "condition": [
@@ -98,7 +98,7 @@
   },
 
   "xtk:sql": {
-    "filename": "/Administration/Configuration/SQL scripts/%namespace%/%name%.sql",
+    "filename": "/Administration/Configuration/SQL scripts/{@namespace}/{@name}.sql",
     "queryDef": {
       "where": {
         "condition": [
@@ -110,7 +110,7 @@
     }
   },
   "xtk:xslt": {
-    "filename": "/Administration/Configuration/XSL style sheets/%namespace%/%name%.xsl",
+    "filename": "/Administration/Configuration/XSL style sheets/{@namespace}/{@name}.xsl",
     "queryDef": {
       "where": {
         "condition": [
@@ -122,7 +122,7 @@
     }
   },
   "xtk:workflow": {
-    "filename": "/Administration/Production/%internalName%.xml",
+    "filename": "/Administration/Production/{@internalName}.xml",
     "queryDef": {
       "where": {
         "condition": [{ "expr": "@builtIn = false AND @isModel = true" }]
@@ -130,7 +130,7 @@
     }
   },
   "nms:operation": {
-    "filename": "/Campaign Management/Campaigns/%internalName%.xml",
+    "filename": "/Campaign Management/Campaigns/{@internalName}.xml",
     "queryDef": {
       "where": {
         "condition": [{ "expr": "@builtIn = false AND @isModel = true" }]
@@ -138,7 +138,7 @@
     }
   },
   "nms:delivery": {
-    "filename": "/Campaign Management/Deliveries/%internalName%.xml",
+    "filename": "/Campaign Management/Deliveries/{@internalName}.xml",
     "queryDef": {
       "where": {
         "condition": [{ "expr": "@builtIn = false AND @isModel = true" }]
@@ -146,7 +146,7 @@
     }
   },
   "nms:includeView": {
-    "filename": "/Resources/Campaign Management/Personalization blocks/%name%.xml",
+    "filename": "/Resources/Campaign Management/Personalization blocks/{@name}.xml",
     "queryDef": {
       "where": {
         "condition": [{ "expr": "@name NOT LIKE 'xtk%'" }]
@@ -154,7 +154,7 @@
     }
   },
   "nms:webApp": {
-    "filename": "/Resources/Online/Web applications/%internalName%.xml",
+    "filename": "/Resources/Online/Web applications/{@internalName}.xml",
     "queryDef": {
       "where": { "condition": [{ "expr": "@builtIn = false" }] }
     }
